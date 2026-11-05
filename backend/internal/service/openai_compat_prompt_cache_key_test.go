@@ -165,6 +165,27 @@ func TestDeriveAnthropicCompatPromptCacheKey_UsesCacheControlAnchors(t *testing.
 	require.False(t, strings.HasPrefix(k1, compatPromptCacheKeyPrefix))
 }
 
+func TestGPT61TerraCompatCacheIdentity(t *testing.T) {
+	for _, model := range []string{
+		"gpt-6.1-terra", "gpt-6.1-terra-none", "gpt-6.1-terra-low",
+		"gpt-6.1-terra-medium", "gpt-6.1-terra-high", "gpt-6.1-terra-xhigh",
+		"gpt-6.1-terra-max", "gpt-6.1-terra-openai-compact",
+		"openai/gpt-6.1-terra", " OPENAI/GPT-6.1_TERRA-HIGH ",
+	} {
+		t.Run(model, func(t *testing.T) {
+			require.True(t, shouldAutoInjectPromptCacheKeyForCompat(model), model)
+		})
+	}
+	for _, model := range []string{
+		"gpt-6.1-terra-preview", "gpt-6.1-terrain", "gpt-6.1-terra-minimal",
+		"gpt-6.1-terra-high-extra", "gpt-6-terra", "gpt-6.1", "claude-sonnet-4-5", "",
+	} {
+		t.Run(model, func(t *testing.T) {
+			require.False(t, shouldAutoInjectPromptCacheKeyForCompat(model), model)
+		})
+	}
+}
+
 func TestGPT6SolLunaCompatCacheIdentity(t *testing.T) {
 	for _, model := range []string{"gpt-6.1-sol", "openai/gpt-6.1-sol-max", "gpt-6-sol", "openai/gpt-6-luna", "gpt-6-sol-max"} {
 		require.True(t, shouldAutoInjectPromptCacheKeyForCompat(model), model)
