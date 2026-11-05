@@ -15,6 +15,16 @@ const compatPromptCacheKeyPrefix = "compat_cc_"
 func shouldAutoInjectPromptCacheKeyForCompat(model string) bool {
 	trimmed := strings.TrimSpace(strings.ToLower(model))
 	canonical := canonicalizeOpenAIModelAliasSpelling(trimmed)
+	// Terra 复用现有 Responses 缓存身份，仅接受已知的模型及 effort/compact 后缀。
+	if canonical == "gpt-6.1-terra" {
+		return true
+	}
+	if suffix, ok := strings.CutPrefix(canonical, "gpt-6.1-terra-"); ok {
+		switch suffix {
+		case "none", "low", "medium", "high", "xhigh", "max", "openai-compact":
+			return true
+		}
+	}
 	// GPT-6 Sol/Luna share the supported Responses cache identity contract.
 	if canonical == "gpt-6" || canonical == "gpt-6-astra" || openai.IsGPT6SolOrLunaModelSpelling(canonical) || openai.IsGPT61SolModelSpelling(canonical) {
 		return true
