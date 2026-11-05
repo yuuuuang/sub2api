@@ -119,7 +119,9 @@ func (s *OpenAIGatewayService) ForwardAsAnthropic(
 			compatPromptCacheInjected = true
 		}
 	}
-	if promptCacheKey == "" && shouldAutoInjectPromptCacheKeyForCompat(upstreamModel) {
+	// Terra 仅补 OAuth 缓存身份，避免同时启用共享 gate 控制的裁剪、续接和提示词改写。
+	terraOAuthCacheIdentity := account.Platform == PlatformOpenAI && account.UsesOpenAICodexProtocol() && canonicalizeOpenAIModelAliasSpelling(upstreamModel) == "gpt-6.1-terra"
+	if promptCacheKey == "" && (shouldAutoInjectPromptCacheKeyForCompat(upstreamModel) || terraOAuthCacheIdentity) {
 		promptCacheKey = promptCacheKeyFromAnthropicMetadataSession(&anthropicReq)
 		if promptCacheKey == "" {
 			promptCacheKey = deriveAnthropicCacheControlPromptCacheKey(&anthropicReq)
