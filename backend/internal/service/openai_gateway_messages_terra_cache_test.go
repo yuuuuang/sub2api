@@ -29,7 +29,7 @@ func TestForwardAsAnthropic_TerraOAuthCacheSession(t *testing.T) {
 		body := []byte(`{"model":"gpt-6.1-terra","max_tokens":32,"stream":false,"system":[{"type":"text","text":"fixed instructions","cache_control":{"type":"ephemeral"}}],"messages":[{"role":"user","content":"hello"}` + laterTurn + `]}`)
 		c, _ := gin.CreateTestContext(httptest.NewRecorder())
 		c.Request = httptest.NewRequest(http.MethodPost, "/v1/messages", bytes.NewReader(body))
-		c.Set("api_key_id", apiKeyID)
+		c.Set("api_key", &APIKey{ID: apiKeyID})
 		upstream.resp = &http.Response{
 			StatusCode: http.StatusOK,
 			Header:     http.Header{"Content-Type": {"text/event-stream"}},
